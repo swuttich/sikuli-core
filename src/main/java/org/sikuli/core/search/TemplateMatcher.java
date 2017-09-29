@@ -78,11 +78,30 @@ public class TemplateMatcher {
 		return result;
 	}
 
+	public static List<Result> findMatchesByGrayscaleAtOriginalResolution(BufferedImage input, IplImage target, int limit, double minScore){
+		IplImage input1 = ImagePreprocessor.createGrayscale(input);
+		IplImage target1 = ImagePreprocessor.createGrayscale(target);
+		IplImage resultMatrix = TemplateMatchingUtilities.computeTemplateMatchResultMatrix(input1, target1);
+		List<Result> result = fetchMatches(resultMatrix, target1, limit, minScore);
+		input1.release();
+		target1.release();
+		resultMatrix.release();
+		return result;
+	}
+
 	// Experimental
 	public static List<Result> findMatchesByGrayscaleAtOriginalResolutionWithROIs(
-			BufferedImage input, BufferedImage target, int limit, double minScore, List<Rectangle> rois){
+			BufferedImage input, BufferedImage	 target, int limit, double minScore, List<Rectangle> rois){
 		IplImage input1 = ImagePreprocessor.createGrayscale(input);
-		IplImage target1 = ImagePreprocessor.createGrayscale(target);				
+		IplImage target1 = ImagePreprocessor.createGrayscale(target);
+		IplImage resultMatrix = TemplateMatchingUtilities.computeTemplateMatchResultMatrixWithMultipleROIs(input1, target1, rois);
+		return fetchMatches(resultMatrix, target1, limit, minScore);
+	}
+
+	public static List<Result> findMatchesByGrayscaleAtOriginalResolutionWithROIs(
+			BufferedImage input, IplImage target, int limit, double minScore, List<Rectangle> rois){
+		IplImage input1 = ImagePreprocessor.createGrayscale(input);
+		IplImage target1 = ImagePreprocessor.createGrayscale(target);
 		IplImage resultMatrix = TemplateMatchingUtilities.computeTemplateMatchResultMatrixWithMultipleROIs(input1, target1, rois);
 		return fetchMatches(resultMatrix, target1, limit, minScore);
 	}

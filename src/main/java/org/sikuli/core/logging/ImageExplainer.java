@@ -25,6 +25,7 @@ import java.util.Map;
 
 import javax.imageio.ImageIO;
 
+import org.sikuli.core.cv.ImageConverter;
 import org.sikuli.core.draw.ImageRenderer;
 
 import edu.umd.cs.piccolo.PCanvas;
@@ -168,7 +169,7 @@ public class ImageExplainer {
 	}
 
 	public void result(IplImage image, Object message){
-		result(image.getBufferedImage(),message);
+		result(ImageConverter.convert(image),message);
 	}
 	
 	public void step(ImageRenderer producer, Object message){
@@ -184,7 +185,7 @@ public class ImageExplainer {
 	}
 
 	public void step(IplImage image, Object message){
-		step(image.getBufferedImage(),message);
+		step(ImageConverter.convert(image),message);
 	}
 
 	public void step(BufferedImage image, Object message){	

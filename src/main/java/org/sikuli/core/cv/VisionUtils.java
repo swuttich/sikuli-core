@@ -16,6 +16,7 @@ import static org.bytedeco.javacpp.opencv_core.cvSet;
 import static org.bytedeco.javacpp.opencv_core.cvSetImageCOI;
 import static org.bytedeco.javacpp.opencv_core.cvSubRS;
 import static org.bytedeco.javacpp.opencv_imgproc.CV_BGR2GRAY;
+import static org.bytedeco.javacpp.opencv_imgproc.CV_BGRA2GRAY;
 import static org.bytedeco.javacpp.opencv_imgproc.CV_CHAIN_APPROX_SIMPLE;
 import static org.bytedeco.javacpp.opencv_imgproc.CV_RETR_EXTERNAL;
 import static org.bytedeco.javacpp.opencv_imgproc.CV_SHAPE_RECT;
@@ -38,6 +39,8 @@ import org.bytedeco.javacpp.opencv_core.CvScalar;
 import org.bytedeco.javacpp.opencv_core.CvSeq;
 import org.bytedeco.javacpp.opencv_core.IplConvKernel;
 import org.bytedeco.javacpp.opencv_core.IplImage;
+import org.bytedeco.javacv.Java2DFrameConverter;
+import org.bytedeco.javacv.OpenCVFrameConverter;
 import org.sikuli.core.draw.BlobPainter;
 import org.sikuli.core.logging.ImageExplainer;
 
@@ -94,20 +97,45 @@ public class VisionUtils {
 		cvSubRS(src, cvScalarAll(255), dest, null);
 	}
 	
-	static public IplImage createGrayImageFrom(IplImage input){		
+
+	static public IplImage createGrayImageFrom(BufferedImage image){
+		IplImage input = ImageConverter.convert(image);
+		if (input.nChannels() == 3) {
+			IplImage gray = IplImage.create(cvGetSize(input), input.depth(), 1);
+			cvCvtColor(input, gray, CV_BGR2GRAY);
+			return gray;
+		}else if (input.nChannels() == 4) {
+			IplImage gray = IplImage.create(cvGetSize(input), input.depth(), 1);
+			cvCvtColor(input, gray, CV_BGRA2GRAY);
+			return gray;
+		}else if (input.nChannels() == 2) {
+			IplImage gray = IplImage.create(cvGetSize(input), 8, 1);
+			IplImage alpha = IplImage.create(cvGetSize(input), 8, 1);
+			IplImage white = IplImage.create(cvGetSize(input), 8, 1);
+			cvSet(white, CvScalar.WHITE);
+			cvSetImageCOI(input,1);
+			cvCopy(input, gray);
+			cvSetImageCOI(input,2);
+			cvCopy(input, alpha);
+			cvCopy(gray,white,alpha);
+			return white;
+		}else {
+			return input;
+		}
+	}
+
+	static public IplImage createGrayImageFrom(IplImage input){
 		//System.out.println("nChannels:" + input.nChannels());
 		
 		if (input.nChannels() == 3){
-			IplImage gray = IplImage.create(cvGetSize(input), 8, 1);
+			IplImage gray = IplImage.create(cvGetSize(input), input.depth(), 1);
 			cvCvtColor(input, gray, CV_BGR2GRAY);
 			return gray;
 		}else if (input.nChannels() == 4){
-			IplImage gray = IplImage.create(cvGetSize(input), 8, 1);
-			cvSetImageCOI(input,3);
-			cvCopy(input, gray);//cvCvtColor(input, gray, CV_BGR2GRAY);
-			cvSetImageCOI(input,0);
-			return gray;		
-		}else if (input.nChannels() == 2){		
+			IplImage gray = IplImage.create(cvGetSize(input), input.depth(), 1);
+			cvCvtColor(input, gray, CV_BGRA2GRAY);
+			return gray;
+		}else if (input.nChannels() == 2){
 			IplImage gray = IplImage.create(cvGetSize(input), 8, 1);
 			IplImage alpha = IplImage.create(cvGetSize(input), 8, 1);
 			IplImage white = IplImage.create(cvGetSize(input), 8, 1);
@@ -170,10 +198,9 @@ public class VisionUtils {
 	}
 	
 	public static IplImage cloneWithoutAlphaChannel(IplImage bgra){
-		
-		IplImage bgr = IplImage.create(bgra.width(), bgra.height(), 8, 3);
-		IplImage alpha = IplImage.create(bgra.width(), bgra.height(), 8, 1);
-		
+		IplImage bgr = IplImage.create(bgra.width(), bgra.height(), bgra.depth(), 3);
+		IplImage alpha = IplImage.create(bgra.width(), bgra.height(), bgra.depth(), 1);
+
 		//cvSet(rgba, cvScalar(1,2,3,4));
 
 		IplImage[] in = {bgra};

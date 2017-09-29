@@ -17,32 +17,27 @@ import java.awt.image.ColorConvertOp;
 public class ImagePreprocessor {
 	
 	public static IplImage createLab(BufferedImage input){
-		IplImage color = IplImage.createFrom(input);
+		IplImage color = ImageConverter.convert(input);
 		IplImage rgb = IplImage.create(cvGetSize(color), 8, 3);
 		cvCvtColor(color,rgb,CV_BGRA2RGB);
-		IplImage lab = IplImage.createCompatible(rgb);        
+		IplImage lab = IplImage.createCompatible(rgb);
 		cvCvtColor(rgb, lab, CV_RGB2Lab );
 		return lab;
 	}
 
 	public static IplImage createHSV(BufferedImage input){
-		IplImage color = IplImage.createFrom(input);
+		IplImage color = ImageConverter.convert(input);
 		IplImage rgb = IplImage.create(cvGetSize(color), 8, 3);
 		cvCvtColor(color,rgb,CV_BGRA2RGB);
-		IplImage hsv = IplImage.createCompatible(rgb);        
+		IplImage hsv = IplImage.createCompatible(rgb);
 		cvCvtColor(rgb, hsv, CV_RGB2HSV );
 		return hsv;
 	}
 
 	public static IplImage createGrayscale(BufferedImage input) {
-		// covert to grayscale at Java level
-		// something is not right at JavaCV if a ARGB image is given
-		ColorSpace cs = ColorSpace.getInstance(ColorSpace.CS_GRAY);
-		ColorConvertOp op = new ColorConvertOp(cs, null);
-		BufferedImage gray1 = op.filter(input,null);
-		return VisionUtils.createGrayImageFrom(IplImage.createFrom(gray1));		
+		return VisionUtils.createGrayImageFrom(input);
 	}
-	
+
 	public static IplImage createGrayscale(IplImage input) {
 		return VisionUtils.createGrayImageFrom(input);		
 	}

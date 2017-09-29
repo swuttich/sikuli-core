@@ -2,12 +2,14 @@ package org.sikuli.core.search.internal;
 
 import static org.bytedeco.javacpp.opencv_core.*;
 import static org.bytedeco.javacpp.opencv_imgproc.*;
+
 import org.bytedeco.javacpp.*;
 
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
+import org.sikuli.core.cv.ImageConverter;
 import org.sikuli.core.logging.ImageExplainer;
 
 public class TemplateMatchingUtilities {
@@ -41,7 +43,7 @@ public class TemplateMatchingUtilities {
 	static BufferedImage visualizeResultMatrix(IplImage result){
 		IplImage resultToShow = IplImage.create(cvGetSize(result), 8, 1);		
 		cvConvertScale(result, resultToShow, 255, 0);
-		return resultToShow.getBufferedImage();
+		return ImageConverter.convert(resultToShow);
 	}
 	
 	public static IplImage computeTemplateMatchResultMatrixWithMultipleROIs(IplImage input, IplImage target, List<Rectangle> ROIs){
